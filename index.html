@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>XVideos Search & Download</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background-color: #000;
+      color: #00bfff;
+    }
+
+    .container {
+      max-width: 800px;
+      margin: auto;
+      padding: 20px;
+      text-align: center;
+    }
+
+    h1 {
+      margin-bottom: 20px;
+      color: #00bfff;
+    }
+
+    .search-box {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 20px;
+      justify-content: center;
+    }
+
+    input[type="text"] {
+      padding: 10px;
+      width: 60%;
+      border-radius: 5px;
+      border: 1px solid #00bfff;
+      background: #111;
+      color: #00bfff;
+    }
+
+    button {
+      padding: 10px 20px;
+      border: none;
+      border-radius: 5px;
+      background: #00bfff;
+      color: #000;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background: #009acd;
+    }
+
+    .results {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+      gap: 20px;
+      margin-top: 30px;
+    }
+
+    .video-card {
+      background: #111;
+      border: 1px solid #00bfff44;
+      border-radius: 8px;
+      padding: 10px;
+      text-align: left;
+    }
+
+    .video-card img {
+      width: 100%;
+      border-radius: 6px;
+    }
+
+    .video-title {
+      margin-top: 10px;
+      font-size: 16px;
+      font-weight: bold;
+      color: #00bfff;
+    }
+
+    .video-duration {
+      font-size: 13px;
+      color: #aaa;
+      margin-bottom: 10px;
+    }
+
+    .download-btn {
+      display: inline-block;
+      margin-top: 5px;
+      padding: 8px 12px;
+      background-color: #00bfff;
+      color: #000;
+      border-radius: 4px;
+      text-decoration: none;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    .download-btn:hover {
+      background-color: #009acd;
+    }
+
+    .modal {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: rgba(0,0,0,0.8);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 999;
+    }
+
+    .modal-content {
+      background: #111;
+      padding: 20px;
+      border-radius: 10px;
+      text-align: center;
+      color: #00bfff;
+    }
+
+    .modal-content h3 {
+      margin-bottom: 15px;
+    }
+
+    .quality-option {
+      margin: 5px;
+      padding: 10px 20px;
+      background: #00bfff;
+      color: #000;
+      border-radius: 5px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    .quality-option:hover {
+      background: #009acd;
+    }
+
+    .watermark {
+      text-align: center;
+      margin-top: 40px;
+      font-size: 14px;
+      color: #00bfff;
+      opacity: 0.7;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <h1>XVideos Search & Download</h1>
+
+    <div class="search-box">
+      <input type="text" id="searchInput" placeholder="Search videos...">
+      <button onclick="searchVideos()">Search</button>
+    </div>
+
+    <div id="results" class="results"></div>
+    <div class="watermark">Made by Divyansh Deewana 💙</div>
+  </div>
+
+  <!-- Quality Modal -->
+  <div class="modal" id="qualityModal">
+    <div class="modal-content">
+      <h3>Choose Quality</h3>
+      <div class="quality-option" onclick="startDownload('lowQuality')">Low Quality</div>
+      <div class="quality-option" onclick="startDownload('highQuality')">High Quality</div>
+      <div class="quality-option" onclick="startDownload('hlsStream')">HLS Stream</div>
+    </div>
+  </div>
+
+  <script>
+    let currentVideoUrl = "";
+
+    function searchVideos() {
+      const query = document.getElementById('searchInput').value.trim();
+      const resultsContainer = document.getElementById('results');
+      resultsContainer.innerHTML = "";
+
+      if (!query) {
+        alert("Please enter a search term.");
+        return;
+      }
+
+      fetch(`https://princeapi.zone.id/api/search/xvideossearch?apikey=prince&query=${encodeURIComponent(query)}`)
+        .then(res => res.json())
+        .then(data => {
+          if (data.success && data.results.length > 0) {
+            data.results.forEach(video => {
+              const card = document.createElement("div");
+              card.className = "video-card";
+              card.innerHTML = `
+                <img src="${video.thumb}" alt="Thumbnail">
+                <div class="video-title">${video.title}</div>
+                <div class="video-duration">Duration: ${video.duration}</div>
+                <div class="download-btn" onclick="showQualityModal('${video.url}')">Download</div>
+              `;
+              resultsContainer.appendChild(card);
+            });
+          } else {
+            resultsContainer.innerHTML = `<p>No videos found.</p>`;
+          }
+        })
+        .catch(err => {
+          resultsContainer.innerHTML = `<p>Error fetching data.</p>`;
+          console.error(err);
+        });
+    }
+
+    function showQualityModal(videoUrl) {
+      currentVideoUrl = videoUrl;
+      document.getElementById("qualityModal").style.display = "flex";
+    }
+
+    function startDownload(qualityType) {
+      fetch(`https://apis-keith.vercel.app/download/porn?url=${encodeURIComponent(currentVideoUrl)}`)
+        .then(res => res.json())
+        .then(data => {
+          if (data.status && data.result.downloads[qualityType]) {
+            window.open(data.result.downloads[qualityType], "_blank");
+          } else {
+            alert("Download link not available.");
+          }
+        })
+        .catch(() => {
+          alert("Error fetching download link.");
+        })
+        .finally(() => {
+          document.getElementById("qualityModal").style.display = "none";
+        });
+    }
+
+    // Close modal on outside click
+    window.onclick = function(e) {
+      const modal = document.getElementById("qualityModal");
+      if (e.target === modal) {
+        modal.style.display = "none";
+      }
+    };
+  </script>
+
+</body>
+</html>
